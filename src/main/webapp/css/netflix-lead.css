@@ -1,0 +1,58 @@
+#netflixForm input[type=text], #netflixForm input[type=tel], #netflixForm select {
+	background-color: #f7f7f7 !important;
+}
+
+#netflixForm label.floating-label {
+    font-size: 0.82rem !important;
+}
+
+select.form-control {
+  background-image: url(https://www.a1.mk/documents/20126/0/A1_down_icon.svg/) !important;
+  background-repeat: no-repeat;
+  background-position: center right 15px;
+  width: 100%;
+  background-size: 13px 13px !important;
+}
+
+.dostapnost-dark {
+    background: linear-gradient(45deg, #140000 0%, #820000 100%);
+    color: #fff;
+}
+
+.dostapnost-dark .floating-label {
+    color: #212529;
+}
+
+.dostapnost-dark a {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.img-netflix{
+	max-height: 200px;
+}
+
+.vip-modal .modal-content .close{
+	color: #000;
+    padding: 0;
+    font-size: 17px;
+    opacity: 1;
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    width: 36px;
+    height: 36px;
+    background: #fff;
+    border-radius: 50%;
+    -webkit-box-shadow: 0 0 15px rgba(0,0,0,.2);
+    box-shadow: 0 0 15px rgba(0,0,0,.2);
+    z-index: 100;
+}
+
+#portlet_Netflixleadform_WAR_LeadSalesportlet .modal-dialog{
+    margin-top: 150px !important;
+}
+
+.hp-field {
+    display: none;
+}

@@ -1,0 +1,124 @@
+buildscript {
+	dependencies {
+		classpath group: "com.liferay", name: "com.liferay.css.builder", version: "3.0.0"
+		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.css.builder", version: "3.0.0"
+	}
+
+	ext {
+		springVersion = '5.1.9.RELEASE'
+		springBootVersion = '2.1.7.RELEASE'
+		hibernateVersion = '5.2.17.Final'
+	}
+
+	repositories {
+		maven {
+			url "https://repository-cdn.liferay.com/nexus/content/groups/public"
+		}
+	}
+}
+
+apply plugin: "com.liferay.css.builder"
+
+repositories {
+	flatDir {
+		dirs 'libs'
+	}
+}
+
+configurations {
+	provided
+}
+
+sourceSets {
+	main { compileClasspath += configurations.provided }
+}
+
+dependencies {
+	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "3.0.0"
+	compileOnly group: "javax.portlet", name: "portlet-api", version: "3.0.0"
+	compileOnly group: "javax.servlet", name: "javax.servlet-api", version: "3.0.1"
+
+	// for the c: jsp tags
+	compile group: 'javax.servlet', name: 'jstl', version: '1.2'
+
+	cssBuilder group: "com.liferay", name: "com.liferay.css.builder", version: "3.0.0"
+
+	portalCommonCSS group: "com.liferay", name: "com.liferay.frontend.css.common", version: "3.0.1"
+
+	// Spring core dependencies
+	compile group: 'org.springframework', name: 'spring-core', version: "${springVersion}"
+	compile group: 'org.springframework', name: 'spring-aop', version: "${springVersion}"
+	compile group: 'org.springframework', name: 'spring-beans', version: "${springVersion}"
+	compile group: 'org.springframework', name: 'spring-expression', version: "${springVersion}"
+	compile group: 'org.springframework', name: 'spring-context', version: "${springVersion}"
+	compile group: 'org.springframework', name: 'spring-web', version: "${springVersion}"
+	compile group: 'org.springframework', name: 'spring-webmvc', version: "${springVersion}"
+
+
+	// configuration processor
+	compile group: 'org.springframework.boot', name: 'spring-boot', version: "${springBootVersion}"
+	compile group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: "${springBootVersion}"
+
+
+	// spring relational database dependencies
+	compile group: 'org.springframework', name: 'spring-jdbc', version: "${springVersion}"
+	compile group: 'org.springframework', name: 'spring-orm', version: "${springVersion}"
+	compile group: 'org.springframework', name: 'spring-tx', version: "${springVersion}"
+
+	//compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.26.RELEASE'
+
+	// hibernate dependencies
+	compile group: 'org.aspectj', name: 'aspectjrt', version: '1.9.3'
+	compile group: 'org.javassist', name: 'javassist', version: '3.22.0-GA'
+	compile group: 'org.hibernate', name: 'hibernate-core', version: "${hibernateVersion}"
+
+	// JPA dependency
+	compile group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
+
+	// spring data dependencies
+	compile group: 'org.springframework.data', name: 'spring-data-jpa', version: '2.1.10.RELEASE'
+
+	// https://mvnrepository.com/artifact/javax.mail/mail
+	provided group: 'javax.mail', name: 'mail', version: '1.4.1'
+
+	// apache httpclient
+	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.1'
+
+
+	// web services
+	compile group: 'javax.xml', name: 'jaxrpc-api', version: '1.1'
+	compile group: 'org.apache.axis', name: 'axis', version: '1.4'
+	compile group: 'commons-discovery', name: 'commons-discovery', version: '0.5'
+	compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+	compile group: 'wsdl4j', name: 'wsdl4j', version: '1.6.2'
+
+	compileOnly group: "com.liferay", name: "com.liferay.petra.string", version: "1.1.0"
+	compileOnly group: "org.osgi", name: "osgi.cmpn", version: "6.0.0"
+	compileOnly group: "org.osgi", name: "osgi.core", version: "5.0.0"
+
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
+	compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: '2.9.4'
+
+	compile name: 'vip-utils'
+}
+
+import org.apache.tools.ant.filters.ReplaceTokens
+
+if (!hasProperty('activeProfile')) ext.activeProfile = 'prod'
+
+processResources {
+	filter ReplaceTokens, tokens: [
+			"activeProfile": project.property("activeProfile")
+	]
+}
+
+war {
+	dependsOn buildCSS
+	exclude "**/*.scss"
+
+	filesMatching("**/.sass-cache/") {
+		it.path = it.path.replace(".sass-cache/", "")
+	}
+
+	includeEmptyDirs = false
+}

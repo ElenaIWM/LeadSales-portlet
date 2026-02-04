@@ -1,0 +1,56 @@
+#internetAvailabilityForm input[type=text], #internetAvailabilityForm input[type=tel], #internetAvailabilityForm select {
+	background-color: #f7f7f7 !important;
+}
+
+#internetAvailabilityForm label.floating-label {
+    font-size: 0.82rem !important;
+}
+
+select.form-control {
+  background-image: url(https://www.a1.mk/documents/20126/0/A1_down_icon.svg/) !important;
+  background-repeat: no-repeat;
+  background-position: center right 15px;
+  width: 100%;
+  background-size: 13px 13px !important;
+}
+
+.dostapnost-dark {
+    background: linear-gradient(45deg, #140000 0%, #820000 100%);
+    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    color: #fff;
+}
+
+.dostapnost-dark .floating-label {
+    color: #212529;
+}
+
+.dostapnost-dark a {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.select2-choice,
+.select2-arrow {
+  background: none !important;
+  border: 0 !important;
+}
+
+.select2-choice {
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+.select2-container {
+	/*background-image: url('/documents/20126/103142/ico-select-arrow.png');*/
+  /*background-image: url("../images/a1-funnels/ico-select-arrow.png");*/
+  background-repeat: no-repeat;
+  background-position: center right 20px;
+}
+
+.select2-drop-active {
+  border: 2px solid #ede7eb !important;
+}
+
+.hp-field {
+    display: none;
+}

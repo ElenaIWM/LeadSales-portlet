@@ -1,0 +1,144 @@
+@media (min-width: 992px){
+	.vip-modal .modal-lg {
+		width: 900px;
+	}}
+
+
+.vip-modal .modal-content .close {
+	color: #000;
+	padding: 0;
+	font-size: 17px;
+	opacity: 1;
+	position: absolute;
+	top: -16px;
+	right: -16px;
+	width: 36px;
+	height: 36px;
+	background: #fff;
+	border-radius: 50%;
+	-webkit-box-shadow: 0 0px 15px rgba(0, 0, 0, .2);
+	box-shadow: 0 0px 15px rgba(0, 0, 0, .2);
+	z-index: 100;
+}
+
+.modal-content .close:hover {
+	color: #e91b32;
+	opacity: 1;
+}
+
+.grecaptcha-badge{
+	display:none;
+}
+
+#comment{
+	padding-top:25px;
+}
+
+#portlet_LeadModal_WAR_LeadSalesportlet .portlet-content {
+	padding: 0 !important;
+	margin: 0 !important;
+}
+.alert {
+	border: 0;
+	-webkit-box-shadow: 0 5px 30px 0 rgba(0, 0, 0, 0.2);
+	box-shadow: 0 5px 30px 0 rgba(0, 0, 0, 0.2);
+	border-radius: 0;
+	z-index: 1040;
+	font-family: 'A1Sans-Light',sans-serif;
+}
+
+button.close {
+	padding: 0;
+	background-color: transparent;
+	border: 0;
+	-webkit-appearance: none;
+}
+.alert-dismissible .close {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 0.75rem 1.25rem;
+	color: inherit;
+}
+
+.alert .close {
+	font-size: 1.75rem;
+	font-weight: 300;
+	top: -5px;
+	right: -5px;
+}
+
+.alert-danger {
+	color: #ffffff;
+	background-color: #c5564e;
+}
+
+.alert-success {
+	color: #ffffff;
+	background-color: #76c318;
+}
+
+.alert-warning {
+	color: #ffffff;
+	background-color: #f5a623;
+}
+
+.alert-info {
+	color: #fff;
+	background-color: #6295ac;
+}
+
+.alert .close {
+	font-size: 1.75rem;
+	font-weight: 300;
+	top: -5px;
+	right: -5px;
+}
+
+.alert, .portlet-msg-alert, .alert-primary, .portlet-msg-help, .portlet-msg-info, .portlet-msg-progress, .portlet-msg-success {
+	margin-bottom: 0 !important;
+	border-radius: 0 !important;
+}
+
+.alert .close, .portlet-msg-alert .close, .alert-primary .close, .portlet-msg-help .close, .portlet-msg-info .close, .portlet-msg-progress .close, .portlet-msg-success .close {
+	top: 50% !important;
+	transform: translateY(-50%) !important;
+}
+
+.alert-danger, .alert-primary {
+	font-family: 'A1Serif-Regular';
+	text-align: center;
+}
+
+.alert, .portlet-msg-alert, .alert-primary, .portlet-msg-help, .portlet-msg-info, .portlet-msg-progress, .portlet-msg-success {
+	margin-bottom: 0 !important;
+	border-radius: 0 !important;
+}
+
+.alert .close, .portlet-msg-alert .close, .alert-primary .close, .portlet-msg-help .close, .portlet-msg-info .close, .portlet-msg-progress .close, .portlet-msg-success .close {
+	top: 50% !important;
+	transform: translateY(-50%) !important;
+}
+
+.alert-danger, .alert-primary {
+	font-family: 'A1Serif-Regular';
+	text-align: center;
+}
+
+@media(max-width:992px)
+{
+	.alert-danger, .alert-primary{
+		margin-top: 85px;
+	}
+}
+
+@media(max-width:768px)
+{
+	.alert-danger, .alert-primary{
+		margin-top: 58px;
+	}
+}
+
+.hp-field {
+	display: none;
+}

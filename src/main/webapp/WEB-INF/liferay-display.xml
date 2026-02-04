@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE display PUBLIC "-//Liferay//DTD Display 7.1.0//EN" "http://www.liferay.com/dtd/liferay-display_7_1_0.dtd">
+
+<display>
+	<category name="A1 Leads">
+		<portlet id="Lead-Form" />
+		<portlet id="Lead-Modal" />
+		<portlet id="Netflix-lead-form"/>
+		<portlet id="School-lead-form"/>
+		<portlet id="Availability-internet-services" />
+	</category>
+	<category name="category.hidden">
+		<portlet id="LeadSales-admin" />
+		<portlet id="Netflix-lead-admin"/>
+		<portlet id="School-lead-admin"/>
+		<portlet id="Internet-availability-admin" />
+	</category>
+</display>

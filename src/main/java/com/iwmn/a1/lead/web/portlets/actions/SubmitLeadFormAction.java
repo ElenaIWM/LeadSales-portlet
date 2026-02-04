@@ -1,0 +1,108 @@
+package com.iwmn.a1.lead.web.portlets.actions;
+
+import com.iwmn.a1.lead.model.jpa.LeadSalesModel;
+import com.iwmn.a1.lead.service.EmailService;
+import com.iwmn.a1.lead.service.LeadSalesService;
+import com.iwmn.a1.lead.web.portlets.Constants;
+import com.iwmn.a1.lead.web.portlets.LeadUtils;
+import com.iwmn.a1.lead.web.portlets.actions.model.ViewModel;
+import com.iwmn.a1.lead.web.portlets.api.Action;
+import com.iwmn.a1.lead.web.portlets.utils.RequestUtil;
+import com.liferay.portal.kernel.language.LanguageUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.portlet.PortletException;
+import javax.portlet.PortletPreferences;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletResponse;
+import java.io.IOException;
+import java.util.Date;
+import java.util.regex.Matcher;
+
+@Component(SubmitLeadFormAction.ACTION_NAME)
+public class SubmitLeadFormAction implements Action {
+
+    public static final String ACTION_NAME = "submitLeadFormAction";
+
+    @Autowired
+    LeadSalesService leadSalesService;
+
+    @Autowired
+    EmailService emailService;
+
+    @Override
+    public ViewModel execute(PortletRequest request, PortletResponse response) throws IOException, PortletException {
+        ViewModel model = new ViewModel(Constants.Pages.LEAD_FORM_PAGE, Constants.Modules.LEAD_FORM);
+        System.out.println("submitLeadFormAction");
+        String fullName = RequestUtil.getParam(request, Constants.Params.FULL_NAME);
+        String phoneNumber = RequestUtil.getParam(request, Constants.Params.PHONE_NUMBER);
+        String email = RequestUtil.getParam(request, Constants.Params.EMAIL);
+        String comment = RequestUtil.getParam(request, Constants.Params.COMMENT);
+        String currentUrl = RequestUtil.getParam(request, Constants.Params.CURRENT_URL);
+        String showSurvey = RequestUtil.getParam(request, Constants.Params.SHOW_SURVEY);
+        String website = RequestUtil.getParam(request, Constants.Params.WEBSITE);
+
+//        System.out.println("fullName " + fullName);
+//        System.out.println("phoneNumber " + phoneNumber);
+//        System.out.println("email " + email);
+//        System.out.println("comment " + comment);
+
+        if((website == null || website.trim().isEmpty()) && fullName!=null && !fullName.equals("") &&
+                phoneNumber!=null && !phoneNumber.equals("") && isValidPhone(phoneNumber) &&
+                email!=null && !email.equals("") &&
+                currentUrl!=null && !currentUrl.equals("")){
+            LeadSalesModel leadSalesModel = new LeadSalesModel();
+            leadSalesModel.setFullName(fullName);
+            leadSalesModel.setPhoneNumber(phoneNumber);
+            leadSalesModel.setEmail(email);
+            leadSalesModel.setFormComment(comment);
+            leadSalesModel.setUrl(currentUrl);
+            leadSalesModel.setIp(LeadUtils.getIpAddress(request));
+
+            String leadEmail = "";
+            PortletPreferences prefs = request.getPreferences();
+            String leadCategory = prefs.getValue("leadCategory", "1");
+            if(leadCategory==null || leadCategory.equals(Constants.LEAD_CARE)){
+                leadSalesModel.setLeadType(Constants.LEAD_CARE_STRING);
+                leadEmail = Constants.LEAD_CARE_EMAIL_TO;
+            }else if(leadCategory.equals(Constants.LEAD_SALES)){
+                leadSalesModel.setLeadType(Constants.LEAD_SALES_STRING);
+                leadEmail = Constants.LEAD_SALES_EMAIL_TO;
+            }else{
+                leadSalesModel.setLeadType(Constants.LEAD_OTHER_STRING);
+                leadEmail = prefs.getValue("leadEmail", Constants.LEAD_SALES_EMAIL_TO);
+            }
+            leadEmail+=",elinda.stojanovamilosheska@a1.mk";
+            leadSalesModel.setEmailTo(leadEmail);
+            emailService.sendLeadForm(leadSalesModel, leadEmail);
+
+            Date now = new Date();
+            leadSalesModel.setCreationDate(now);
+            //database column limit 255
+            try {
+                leadSalesService.save(leadSalesModel);
+            }catch(Exception e) {
+                currentUrl = currentUrl.substring(0,250);
+                leadSalesModel.setUrl(currentUrl);
+                leadSalesService.save(leadSalesModel);
+            }
+
+            String languageId = LanguageUtil.getLanguageId(request);
+            emailService.sendLeadFormToCustomer(leadSalesModel.getEmailTo(), languageId);
+
+            request.setAttribute("showSurvey", showSurvey);
+            request.setAttribute("msisdn", phoneNumber);
+            request.setAttribute("email", email);
+            request.setAttribute("status", Constants.MESSAGES.LEAD_FORM_SUCCESS);
+        }else{
+            request.setAttribute("error", Constants.MESSAGES.LEAD_FORM_ERROR);
+        }
+        return model;
+    }
+
+    public Boolean isValidPhone(String phone) {
+        Matcher matcher = Constants.PHONE_NUMBER_REGEX.matcher(phone);
+        return matcher.find();
+    }
+}

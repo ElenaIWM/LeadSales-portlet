@@ -1,0 +1,28 @@
+select.form-control {
+  background-image: url(https://www.a1.mk/documents/20126/0/A1_down_icon.svg/) !important;
+  background-repeat: no-repeat;
+  background-position: center right 15px;
+  width: 100%;
+  background-size: 13px 13px !important;
+}
+
+.vip-modal .modal-content .close{
+	color: #000;
+	padding: 0;
+	font-size: 17px;
+	opacity: 1;
+	position: absolute;
+	top: -16px;
+	right: -16px;
+	width: 36px;
+	height: 36px;
+	background: #fff;
+	border-radius: 50%;
+	-webkit-box-shadow: 0 0 15px rgba(0,0,0,.2);
+	box-shadow: 0 0 15px rgba(0,0,0,.2);
+	z-index: 100;
+}
+
+.hp-field {
+	display: none;
+}
