@@ -72,7 +72,11 @@ public class SubmitAvailabilityInternetServicesFormAction implements Action {
                     locator.setsugarsoapPortEndpointAddress(internetAvailabilitySugarEndpoint);
 
                     SugarsoapBindingStub proxy = (SugarsoapBindingStub) locator.getsugarsoapPort();
-                    String responseCreateLeadCyclone = proxy.createLeadCyclone(MsisdnUtil.normalizeMsisdn(msisdn), cityCyrilic, "", "", "", "web");
+                    String source = "WEB B2C";
+                    if(currentUrl!=null && currentUrl.contains("/delovni")){
+                        source = "WEB B2B";
+                    }
+                    String responseCreateLeadCyclone = proxy.createLeadCyclone(MsisdnUtil.normalizeMsisdn(msisdn), cityCyrilic, "", "", "", source);
                     System.out.println("responseCreateLeadCyclone " + responseCreateLeadCyclone);
                     if(responseCreateLeadCyclone!=null && (responseCreateLeadCyclone.equals("Success - Cyclone created") || responseCreateLeadCyclone.equals("Success - Cyclone updated"))) {
                         request.setAttribute("success", true);
