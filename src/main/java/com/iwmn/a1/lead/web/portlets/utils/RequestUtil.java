@@ -9,16 +9,33 @@ import javax.servlet.http.HttpServletRequest;
 public class RequestUtil {
 
     public static String getParam(PortletRequest req, String name) {
+
         HttpServletRequest httpRequest = PortalUtil.getHttpServletRequest(req);
         HttpServletRequest origRequest = PortalUtil.getOriginalServletRequest(httpRequest);
+
+        // 1. First try normal request parameter
         String val = origRequest.getParameter(name);
+
+        // 2. Only try upload request if REALLY multipart
         if (val == null) {
-            UploadPortletRequest uploadRequest = PortalUtil.getUploadPortletRequest(req);
-            val = uploadRequest.getParameter(name);
+
+            String contentType = httpRequest.getContentType();
+
+            if (contentType != null &&
+                    contentType.toLowerCase().startsWith("multipart/")) {
+
+                UploadPortletRequest uploadRequest =
+                        PortalUtil.getUploadPortletRequest(req);
+
+                val = uploadRequest.getParameter(name);
+            }
         }
+
+        // 3. Fallback to attribute
         if (val == null) {
             val = (String) req.getAttribute(name);
         }
+
         return val;
     }
 

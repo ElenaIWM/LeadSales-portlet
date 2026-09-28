@@ -17,6 +17,8 @@ public class Constants {
     public static final String SHOW_SURVEY = "showSurvey";
     public static final String SHOW_PERSONAL_DATA = "agreePersonalData";
 
+    public static final String SEND_CYCLONE = "sendCyclone";
+
     public static final String LEAD_SALES_EMAIL_TO = "leadform-sales@a1.mk";
     public static final String LEAD_CARE_EMAIL_TO = "leadform-care@a1.mk";
 

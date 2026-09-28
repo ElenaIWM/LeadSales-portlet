@@ -23,7 +23,7 @@ String userType = GetterUtil.getString(portletPreferences.getValue("userType", "
 String installationAddress = GetterUtil.getString(portletPreferences.getValue("installationAddress", "false"));
 String showSurvey = GetterUtil.getString(portletPreferences.getValue("showSurvey", "false"));
 String agreePersonalData = GetterUtil.getString(portletPreferences.getValue("agreePersonalData", "false"));
-
+String sendCyclone = GetterUtil.getString(portletPreferences.getValue("sendCyclone", "false"));
 %>
 
 <aui:form action="<%= configurationURL %>" method="post" name="fm" style="margin:30px;">
@@ -41,14 +41,17 @@ String agreePersonalData = GetterUtil.getString(portletPreferences.getValue("agr
    
     <h3>Instalation Address?</h3>
     <aui:input name="preferences--installationAddress--" type="checkbox" value="installationAddress" checked="<%=installationAddress.equals(Constants.INSTALLATION_ADDRESS) %>" label="Instalation Address"/>
-    
+
+    <h3>Send cyclone?</h3>
+    <aui:input name="preferences--sendCyclone--" type="checkbox" value="sendCyclone" checked="<%=sendCyclone.equals(Constants.SEND_CYCLONE) %>" label="Send cyclone?"/>
+
     <h3>Choose Lead Type</h3>
     <aui:input name="preferences--leadCategory--" type="radio" value="1" checked="<%=leadCategory_cfg.equals(Constants.LEAD_SALES) %>" label="Lead-sales"/>
     <aui:input name="preferences--leadCategory--" type="radio" value="2" checked="<%=leadCategory_cfg.equals(Constants.LEAD_CARE) %>" label="Lead-care"/>
     <aui:input name="preferences--leadCategory--" type="radio" value="3" checked="<%=leadCategory_cfg.equals(Constants.LEAD_OTHER) %>" label="Lead-other"/>
-	<aui:input name="preferences--leadEmail--" type="text" size="50" label="Lead email (other)" value="<%=leadEmail %>"/>         
+	<aui:input name="preferences--leadEmail--" type="text" size="50" label="Lead email (other)" value="<%=leadEmail %>"/>
 
-	<h3>Choose Lead Form text (Lead form only)</h3>
+    <h3>Choose Lead Form text (Lead form only)</h3>
 	<aui:input name="preferences--formDescMK--" type="textarea" value="<%=formDescMK %>" rows="15" cols="80" label="Lead-form-text-MK"/>
 	<aui:input name="preferences--formDescAL--" type="textarea" value="<%=formDescAL %>" rows="15" cols="80" label="Lead-form-text-AL"/>
 	<aui:input name="preferences--formDescEN--" type="textarea" value="<%=formDescEN %>" rows="15" cols="80" label="Lead-form-text-EN"/>

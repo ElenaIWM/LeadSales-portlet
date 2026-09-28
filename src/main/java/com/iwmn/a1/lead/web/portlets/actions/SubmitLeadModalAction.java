@@ -1,6 +1,7 @@
 package com.iwmn.a1.lead.web.portlets.actions;
 
 import com.iwmn.a1.lead.model.jpa.LeadSalesModel;
+import com.iwmn.a1.lead.service.CycloneService;
 import com.iwmn.a1.lead.service.EmailService;
 import com.iwmn.a1.lead.service.LeadSalesService;
 import com.iwmn.a1.lead.web.portlets.Constants;
@@ -8,14 +9,19 @@ import com.iwmn.a1.lead.web.portlets.LeadUtils;
 import com.iwmn.a1.lead.web.portlets.actions.model.ViewModel;
 import com.iwmn.a1.lead.web.portlets.api.Action;
 import com.iwmn.a1.lead.web.portlets.utils.RequestUtil;
+import com.iwmn.utils.MsisdnUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.sugarcrm.www.sugarcrm.SugarsoapBindingStub;
+import com.sugarcrm.www.sugarcrm.SugarsoapLocator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.portlet.PortletException;
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
+import javax.xml.rpc.ServiceException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -33,6 +39,12 @@ public class SubmitLeadModalAction implements Action {
     @Autowired
     EmailService emailService;
 
+    @Value("${internet.availability.form.sugar.endpoint}")
+    public String internetAvailabilitySugarEndpoint;
+
+    @Autowired
+    private CycloneService cycloneService;
+
     @Override
     public ViewModel execute(PortletRequest request, PortletResponse response) throws IOException, PortletException {
         ViewModel model = new ViewModel(Constants.Pages.LEAD_MODAL_PAGE, Constants.Modules.LEAD_MODAL);
@@ -46,15 +58,6 @@ public class SubmitLeadModalAction implements Action {
         String currentUrl = RequestUtil.getParam(request, Constants.Params.CURRENT_URL);
         String showSurvey = RequestUtil.getParam(request, Constants.Params.SHOW_SURVEY);
         String website = RequestUtil.getParam(request, Constants.Params.WEBSITE);
-
-        System.out.println("fullName " + fullName);
-        System.out.println("companyName" + companyName);
-        System.out.println("phoneNumber " + phoneNumber);
-        System.out.println("email " + email);
-        System.out.println("installationAddress " + installationAddress);
-        System.out.println("comment " + comment);
-        System.out.println("currentUrl " + currentUrl);
-        System.out.println("showSurvey " + showSurvey);
 
         if((website == null || website.trim().isEmpty()) && fullName!=null && !fullName.equals("") &&
                 phoneNumber!=null && !phoneNumber.equals("") && isValidPhone(phoneNumber) &&
@@ -70,41 +73,89 @@ public class SubmitLeadModalAction implements Action {
             leadSalesModel.setUrl(currentUrl);
             leadSalesModel.setIp(LeadUtils.getIpAddress(request));
 
-            String leadEmail = "";
             PortletPreferences prefs = request.getPreferences();
-            String leadCategory = prefs.getValue("leadCategory", "1");
-            if(leadCategory==null || leadCategory.equals(Constants.LEAD_CARE)){
-                leadSalesModel.setLeadType(Constants.LEAD_CARE_STRING);
-                leadEmail = Constants.LEAD_CARE_EMAIL_TO;
-            }else if(leadCategory.equals(Constants.LEAD_SALES)){
-                leadSalesModel.setLeadType(Constants.LEAD_SALES_STRING);
-                leadEmail = Constants.LEAD_SALES_EMAIL_TO;
+
+            String sendCyclone = prefs.getValue(Constants.SEND_CYCLONE, "false");
+            if(sendCyclone!=null && sendCyclone.equals("sendCyclone")){
+                if(internetAvailabilitySugarEndpoint!=null && !internetAvailabilitySugarEndpoint.isEmpty()){
+
+                        String source = "WEB B2C";
+                        if(currentUrl!=null && currentUrl.contains("/delovni")){
+                            source = "WEB B2B";
+                        }
+                        String cycloneResponse = cycloneService.createLeadCyclone(MsisdnUtil.normalizeMsisdn(phoneNumber), "","", "", "", source, "", "", "", "", currentUrl);
+                        if(cycloneResponse!=null && (cycloneResponse.equals("Success - Cyclone created") || cycloneResponse.equals("Success - Cyclone updated"))) {
+                            String leadEmail = "";
+                            String leadCategory = prefs.getValue("leadCategory", "1");
+                            if(leadCategory==null || leadCategory.equals(Constants.LEAD_CARE)){
+                                leadSalesModel.setLeadType(Constants.LEAD_CARE_STRING);
+                                leadEmail = Constants.LEAD_CARE_EMAIL_TO;
+                            }else if(leadCategory.equals(Constants.LEAD_SALES)){
+                                leadSalesModel.setLeadType(Constants.LEAD_SALES_STRING);
+                                leadEmail = Constants.LEAD_SALES_EMAIL_TO;
+                            }else{
+                                leadSalesModel.setLeadType(Constants.LEAD_OTHER_STRING);
+                                leadEmail = prefs.getValue("leadEmail", Constants.LEAD_SALES_EMAIL_TO);
+                            }
+                            leadSalesModel.setEmailTo(leadEmail);
+
+                            Date now = new Date();
+                            leadSalesModel.setCreationDate(now);
+                            //database column limit 255
+                            try {
+                                leadSalesService.save(leadSalesModel);
+                            }catch(Exception e) {
+                                currentUrl = currentUrl.substring(0,250);
+                                leadSalesModel.setUrl(currentUrl);
+                                leadSalesService.save(leadSalesModel);
+                            }
+                            request.setAttribute("showSurvey", showSurvey);
+                            request.setAttribute("msisdn", phoneNumber);
+                            request.setAttribute("email", email);
+                            request.setAttribute("success", Constants.MESSAGES.LEAD_FORM_SUCCESS);
+                        }else {
+                            request.setAttribute("error", Constants.MESSAGES.LEAD_FORM_ERROR);
+                        }
+
+                }else{
+                    request.setAttribute("error", Constants.MESSAGES.LEAD_FORM_ERROR);
+                }
             }else{
-                leadSalesModel.setLeadType(Constants.LEAD_OTHER_STRING);
-                leadEmail = prefs.getValue("leadEmail", Constants.LEAD_SALES_EMAIL_TO);
+                String leadEmail = "";
+                String leadCategory = prefs.getValue("leadCategory", "1");
+                if(leadCategory==null || leadCategory.equals(Constants.LEAD_CARE)){
+                    leadSalesModel.setLeadType(Constants.LEAD_CARE_STRING);
+                    leadEmail = Constants.LEAD_CARE_EMAIL_TO;
+                }else if(leadCategory.equals(Constants.LEAD_SALES)){
+                    leadSalesModel.setLeadType(Constants.LEAD_SALES_STRING);
+                    leadEmail = Constants.LEAD_SALES_EMAIL_TO;
+                }else{
+                    leadSalesModel.setLeadType(Constants.LEAD_OTHER_STRING);
+                    leadEmail = prefs.getValue("leadEmail", Constants.LEAD_SALES_EMAIL_TO);
+                }
+                leadEmail+=",elinda.stojanovamilosheska@a1.mk";
+                leadSalesModel.setEmailTo(leadEmail);
+                emailService.sendLeadForm(leadSalesModel, leadEmail);
+
+                Date now = new Date();
+                leadSalesModel.setCreationDate(now);
+                //database column limit 255
+                try {
+                    leadSalesService.save(leadSalesModel);
+                }catch(Exception e) {
+                    currentUrl = currentUrl.substring(0,250);
+                    leadSalesModel.setUrl(currentUrl);
+                    leadSalesService.save(leadSalesModel);
+                }
+
+                String languageId = LanguageUtil.getLanguageId(request);
+                emailService.sendLeadFormToCustomer(leadSalesModel.getEmailTo(), languageId);
+
+                request.setAttribute("showSurvey", showSurvey);
+                request.setAttribute("msisdn", phoneNumber);
+                request.setAttribute("email", email);
+                request.setAttribute("status", Constants.MESSAGES.LEAD_FORM_SUCCESS);
             }
-            leadEmail+=",elinda.stojanovamilosheska@a1.mk";
-            leadSalesModel.setEmailTo(leadEmail);
-            emailService.sendLeadForm(leadSalesModel, leadEmail);
-
-            Date now = new Date();
-            leadSalesModel.setCreationDate(now);
-            //database column limit 255
-            try {
-                leadSalesService.save(leadSalesModel);
-            }catch(Exception e) {
-                currentUrl = currentUrl.substring(0,250);
-                leadSalesModel.setUrl(currentUrl);
-                leadSalesService.save(leadSalesModel);
-            }
-
-            String languageId = LanguageUtil.getLanguageId(request);
-            emailService.sendLeadFormToCustomer(leadSalesModel.getEmailTo(), languageId);
-
-            request.setAttribute("showSurvey", showSurvey);
-            request.setAttribute("msisdn", phoneNumber);
-            request.setAttribute("email", email);
-            request.setAttribute("status", Constants.MESSAGES.LEAD_FORM_SUCCESS);
         }else{
             request.setAttribute("error", Constants.MESSAGES.LEAD_FORM_ERROR);
         }
