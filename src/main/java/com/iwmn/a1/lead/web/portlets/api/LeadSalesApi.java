@@ -49,6 +49,10 @@ public class LeadSalesApi {
         this.service = ApplicationContextHolder.getBean(LeadSalesService.class);
         this.emailService = ApplicationContextHolder.getBean(EmailService.class);
         this.cycloneService = ApplicationContextHolder.getBean(CycloneService.class);
+
+        System.out.println("LeadSalesApi: service=" + (this.service == null ? "NULL" : "OK") +
+                ", emailService=" + (this.emailService == null ? "NULL" : "OK") +
+                ", cycloneService=" + (this.cycloneService == null ? "NULL" : "OK"));
     }
 
     @RequestMapping(value = "/insertLead", method= RequestMethod.POST)
@@ -126,13 +130,15 @@ public class LeadSalesApi {
                 // regardless.
                 try {
                     emailService.sendLeadForm(model, leadEmail);
+                    System.out.println("LeadSalesApi: internal lead notification email sent to " + leadEmail);
                 } catch (Exception e) {
                     System.err.println("LeadSalesApi: failed to send internal lead notification email, continuing anyway.");
                     e.printStackTrace();
                 }
 
                 try {
-                    cycloneService.createLeadCyclone(phone, "", fullName, "", "", source, address, "", "", "", comment);
+                    String cycloneResponse = cycloneService.createLeadCyclone(phone, "", fullName, "", "", source, address, "", "", "", comment);
+                    System.out.println("LeadSalesApi: Cyclone lead created, response=" + cycloneResponse);
                 } catch (Exception e) {
                     System.err.println("LeadSalesApi: failed to create Cyclone lead, continuing anyway.");
                     e.printStackTrace();
@@ -141,6 +147,7 @@ public class LeadSalesApi {
                 try {
                     String languageId = LanguageUtil.getLanguageId(request);
                     emailService.sendLeadFormToCustomer(model.getEmail(), languageId);
+                    System.out.println("LeadSalesApi: customer confirmation email sent to " + model.getEmail());
                 } catch (Exception e) {
                     System.err.println("LeadSalesApi: failed to send customer confirmation email, continuing anyway.");
                     e.printStackTrace();
