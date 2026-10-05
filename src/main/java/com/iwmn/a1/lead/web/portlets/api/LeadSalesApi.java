@@ -26,19 +26,6 @@ import java.util.regex.Pattern;
 @Lazy
 public class LeadSalesApi {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 667718426151727281L;
-
-    private static final String DOWNLOAD_KEY = "alasid6354asdf";
-
-    private static final String template = "Hello %s!";
-
-    public static final Pattern PHONE_NUMBER_REGEX = Pattern.compile(
-            "^389[0-9]{8}$", Pattern.CASE_INSENSITIVE);
-
-
     LeadSalesService service;
 
     EmailService emailService;
@@ -172,7 +159,7 @@ public class LeadSalesApi {
     }
 
     public Boolean isValidPhone(String phone) {
-        Matcher matcher = PHONE_NUMBER_REGEX.matcher(phone);
+        Matcher matcher = Constants.PHONE_NUMBER_REGEX.matcher(phone);
         return matcher.find();
     }
 
