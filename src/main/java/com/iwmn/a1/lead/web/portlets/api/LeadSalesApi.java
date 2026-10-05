@@ -118,19 +118,31 @@ public class LeadSalesApi {
                 leadEmail+=",elinda.stojanovamilosheska@a1.mk";
                 model.setEmailTo(leadEmail);
 
-                // Both sends can throw (e.g. AddressException from a customer-supplied
-                // email InternetAddress.parse() rejects) - a failed/undeliverable
-                // notification shouldn't cost us the lead itself, so it's still saved
-                // below regardless.
+                // Each of these three side effects is independent and can fail on its
+                // own (e.g. AddressException from a customer-supplied email
+                // InternetAddress.parse() rejects, or a RemoteException from the
+                // Cyclone SOAP call) - none of them should cost us the other two, and
+                // none should cost us the lead itself, which is still saved below
+                // regardless.
                 try {
                     emailService.sendLeadForm(model, leadEmail);
+                } catch (Exception e) {
+                    System.err.println("LeadSalesApi: failed to send internal lead notification email, continuing anyway.");
+                    e.printStackTrace();
+                }
 
+                try {
                     cycloneService.createLeadCyclone(phone, "", fullName, "", "", source, address, "", "", "", comment);
+                } catch (Exception e) {
+                    System.err.println("LeadSalesApi: failed to create Cyclone lead, continuing anyway.");
+                    e.printStackTrace();
+                }
 
+                try {
                     String languageId = LanguageUtil.getLanguageId(request);
                     emailService.sendLeadFormToCustomer(model.getEmail(), languageId);
                 } catch (Exception e) {
-                    System.err.println("LeadSalesApi: failed to send lead notification email(s), saving lead anyway.");
+                    System.err.println("LeadSalesApi: failed to send customer confirmation email, continuing anyway.");
                     e.printStackTrace();
                 }
 
