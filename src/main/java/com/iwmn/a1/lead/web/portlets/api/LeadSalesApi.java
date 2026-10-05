@@ -48,6 +48,7 @@ public class LeadSalesApi {
     public LeadSalesApi() {
         this.service = ApplicationContextHolder.getBean(LeadSalesService.class);
         this.emailService = ApplicationContextHolder.getBean(EmailService.class);
+        this.cycloneService = ApplicationContextHolder.getBean(CycloneService.class);
     }
 
     @RequestMapping(value = "/insertLead", method= RequestMethod.POST)
@@ -125,7 +126,7 @@ public class LeadSalesApi {
                     emailService.sendLeadForm(model, leadEmail);
 
                     cycloneService.createLeadCyclone(phone, "", fullName, "", "", source, address, "", "", "", comment);
-                    
+
                     String languageId = LanguageUtil.getLanguageId(request);
                     emailService.sendLeadFormToCustomer(model.getEmail(), languageId);
                 } catch (Exception e) {
