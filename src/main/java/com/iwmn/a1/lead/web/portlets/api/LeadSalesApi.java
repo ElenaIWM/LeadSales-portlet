@@ -112,11 +112,19 @@ public class LeadSalesApi {
                 leadEmail+=",elinda.stojanovamilosheska@a1.mk";
                 model.setEmailTo(leadEmail);
 
-                emailService.sendLeadForm(model, leadEmail);
+                // Both sends can throw (e.g. AddressException from a customer-supplied
+                // email InternetAddress.parse() rejects) - a failed/undeliverable
+                // notification shouldn't cost us the lead itself, so it's still saved
+                // below regardless.
+                try {
+                    emailService.sendLeadForm(model, leadEmail);
 
-                String languageId = LanguageUtil.getLanguageId(request);
-
-                emailService.sendLeadFormToCustomer(model.getEmail(), languageId);
+                    String languageId = LanguageUtil.getLanguageId(request);
+                    emailService.sendLeadFormToCustomer(model.getEmail(), languageId);
+                } catch (Exception e) {
+                    System.err.println("LeadSalesApi: failed to send lead notification email(s), saving lead anyway.");
+                    e.printStackTrace();
+                }
 
                 Date now = new Date();
                 model.setCreationDate(now);
