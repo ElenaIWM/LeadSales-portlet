@@ -2,6 +2,7 @@ package com.iwmn.a1.lead.web.portlets.api;
 
 import com.iwmn.a1.lead.config.ApplicationContextHolder;
 import com.iwmn.a1.lead.model.jpa.LeadSalesModel;
+import com.iwmn.a1.lead.service.CycloneService;
 import com.iwmn.a1.lead.service.EmailService;
 import com.iwmn.a1.lead.service.LeadSalesService;
 import com.iwmn.a1.lead.web.portlets.Constants;
@@ -41,6 +42,8 @@ public class LeadSalesApi {
     LeadSalesService service;
 
     EmailService emailService;
+
+    CycloneService cycloneService;
 
     public LeadSalesApi() {
         this.service = ApplicationContextHolder.getBean(LeadSalesService.class);
@@ -106,8 +109,10 @@ public class LeadSalesApi {
                 model.setIp(remAddr);
 
                 String leadEmail = Constants.LEAD_SALES_EMAIL_TO;
+                String source = "WEB B2C";
                 if(customerType!=null && customerType.equals("CUSTOMER_BUSINESS")) {
                     leadEmail = "SohoOnlineSales@a1.mk";
+                    source = "WEB B2B";
                 }
                 leadEmail+=",elinda.stojanovamilosheska@a1.mk";
                 model.setEmailTo(leadEmail);
@@ -119,6 +124,8 @@ public class LeadSalesApi {
                 try {
                     emailService.sendLeadForm(model, leadEmail);
 
+                    cycloneService.createLeadCyclone(phone, "", fullName, "", "", source, address, "", "", "", comment);
+                    
                     String languageId = LanguageUtil.getLanguageId(request);
                     emailService.sendLeadFormToCustomer(model.getEmail(), languageId);
                 } catch (Exception e) {
