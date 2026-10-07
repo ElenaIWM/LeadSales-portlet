@@ -54,13 +54,26 @@ public class LeadSalesApi {
 //		System.out.println("isCaptchaValid " + isCaptchaValid);
         if(isCaptchaValid) {
             String customerType = ParamUtil.getString(request, "customerType");
+            String firstName = ParamUtil.getString(request, "firstName");
+            String lastName = ParamUtil.getString(request, "lastName");
             String fullName = ParamUtil.getString(request,"fullName");
+            if (fullName.isEmpty() && (!firstName.isEmpty() || !lastName.isEmpty())) {
+                // Residential now sends firstName/lastName separately (see
+                // orderSummary.js) rather than one combined field - fullName is
+                // still what LeadSalesModel/the notification emails use, so it's
+                // derived here rather than touched everywhere else.
+                fullName = (firstName + " " + lastName).trim();
+            }
             String phone = ParamUtil.getString(request,"phone");
             String email = ParamUtil.getString(request,"email");
             String comment = ParamUtil.getString(request,"comment");
             String currentUrl = ParamUtil.getString(request,"currentUrl");
             String companyName = ParamUtil.getString(request,"companyName");
             String address = ParamUtil.getString(request, "address");
+            String cityId = ParamUtil.getString(request, "cityId");
+            String streetId = ParamUtil.getString(request, "streetId");
+            String numberId = ParamUtil.getString(request, "numberId");
+            String apartmentId = ParamUtil.getString(request, "apartmentId");
             String taxNumber = ParamUtil.getString(request, "taxNumber");
             String contactPerson = ParamUtil.getString(request, "contactPerson");
             String remAddr = request.getHeader("HTTP-X-ASMP-FORWARDED-FOR");
@@ -124,7 +137,7 @@ public class LeadSalesApi {
                 }
 
                 try {
-                    String cycloneResponse = cycloneService.createLeadCyclone(phone, "", fullName, "", "", source, address, "", "", "", comment);
+                    String cycloneResponse = cycloneService.createLeadCyclone(phone, "", firstName, lastName, "", source, cityId, streetId, numberId, apartmentId, comment);
                     System.out.println("LeadSalesApi: Cyclone lead created, response=" + cycloneResponse);
                 } catch (Exception e) {
                     System.err.println("LeadSalesApi: failed to create Cyclone lead, continuing anyway.");
