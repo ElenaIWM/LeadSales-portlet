@@ -70,6 +70,7 @@ public class LeadSalesApi {
             String currentUrl = ParamUtil.getString(request,"currentUrl");
             String companyName = ParamUtil.getString(request,"companyName");
             String address = ParamUtil.getString(request, "address");
+            String cityName = ParamUtil.getString(request, "cityName");
             String cityId = ParamUtil.getString(request, "cityId");
             String streetId = ParamUtil.getString(request, "streetId");
             String numberId = ParamUtil.getString(request, "numberId");
@@ -137,7 +138,7 @@ public class LeadSalesApi {
                 }
 
                 try {
-                    String cycloneResponse = cycloneService.createLeadCyclone(phone, "", firstName, lastName, "", source, cityId, streetId, numberId, apartmentId, comment);
+                    String cycloneResponse = cycloneService.createLeadCyclone(phone, cityName, firstName, lastName, "", source, cityId, streetId, numberId, apartmentId, comment);
                     System.out.println("LeadSalesApi: Cyclone lead created, response=" + cycloneResponse);
                 } catch (Exception e) {
                     System.err.println("LeadSalesApi: failed to create Cyclone lead, continuing anyway.");
